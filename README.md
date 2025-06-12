@@ -42,6 +42,7 @@ setup.bat
 To start the application navigate to the app directory in the terminal by executing the following command:
 
 ```
+source .clif_lighthouse/bin/activate
 cd app
 streamlit run app.py
 ```
