@@ -1,0 +1,6 @@
+2025-08-27 14:41:33,525 - pyclif.adt - INFO - Initialized adt table
+2025-08-27 14:41:33,525 - pyclif.adt - INFO - Data directory: /var/folders/5m/3b6ytkt51l3d2849dkmpys5r0000gp/T/tmpgjqa2069
+2025-08-27 14:41:33,525 - pyclif.adt - INFO - File type: parquet
+2025-08-27 14:41:33,525 - pyclif.adt - INFO - Timezone: UTC
+2025-08-27 14:41:33,525 - pyclif.adt - INFO - Output directory: /Users/dema/WD/CLIF-Lighthouse/output
+2025-08-27 14:41:33,525 - pyclif.adt - WARNING - Schema file not found: /Users/dema/WD/CLIF-Lighthouse/.venv/lib/python3.10/site-packages/clifpy/schemas/adt_schema.yaml

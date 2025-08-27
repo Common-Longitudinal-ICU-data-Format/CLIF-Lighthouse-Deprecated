@@ -2,21 +2,23 @@ import streamlit as st
 st.set_page_config(page_title=None, page_icon=None, layout="wide", initial_sidebar_state="collapsed", menu_items=None)
 
 import os
+import tempfile
 import logging
 from streamlit_navigation_bar import st_navbar
 from logging_config import setup_logging
-# from common_features import set_bg_hack_url
-from common_qc import read_data
+from clifpy import Adt, Hospitalization, Labs, Patient, Position, PatientAssessments, RespiratorySupport, Vitals, MedicationAdminContinuous
 from pages._3_adt_qc import show_adt_qc
 from pages._4_hosp_qc import show_hosp_qc
 from pages._5_labs_qc import show_labs_qc
 from pages._6_med_qc import show_meds_qc
-from pages._7_microbio_qc import show_microbio_qc
+# from pages._7_microbio_qc import show_microbio_qc
 from pages._8_patient_qc import show_patient_qc
 from pages._9_patient_assess_qc import show_patient_assess_qc
 from pages._10_position_qc import show_position_qc
 from pages._11_resp_qc import show_respiratory_support_qc
 from pages._12_vitals_qc import show_vitals_qc
+
+
 
 def show_home():
     # Initialize logger
@@ -63,7 +65,7 @@ def show_home():
             files = st.file_uploader(
                 "Select one or more files", 
                 accept_multiple_files=True, 
-                type=["csv", "parquet", "fst"]
+                type=["csv", "parquet"]
             )
 
             # Sampling option
@@ -83,9 +85,65 @@ def show_home():
                     st.session_state["files"] = "Yes"
                     try:
                         for file in files:
-                            df = read_data(file)
+                            logger.info(f"Processing file: {file.name}")
+                            
+                            # Extract table name and file type
                             table_name = file.name.split('.')[0]
-                            st.session_state[table_name] = df
+                            filetype = file.name.split('.')[-1]
+                            
+                            # Map table names to clifpy classes
+                            table_class_map = {
+                                'clif_adt': Adt,
+                                'adt': Adt,
+                                'clif_hospitalization': Hospitalization,
+                                'hospitalization': Hospitalization,
+                                'clif_labs': Labs,
+                                'labs': Labs,
+                                'clif_patient': Patient,
+                                'patient': Patient,
+                                'clif_position': Position,
+                                'position': Position,
+                                'clif_patient_assessments': PatientAssessments,
+                                'patient_assessments': PatientAssessments,
+                                'clif_respiratory_support': RespiratorySupport,
+                                'respiratory_support': RespiratorySupport,
+                                'clif_vitals': Vitals,
+                                'vitals': Vitals,
+                                'clif_medication_admin_continuous': MedicationAdminContinuous,
+                                'medication_admin_continuous': MedicationAdminContinuous
+                            }
+                            
+                            if table_name.lower() in table_class_map:
+                                logger.info(f"Loading {table_name} using clifpy")
+                                
+                                # Create temporary directory and save file
+                                with tempfile.TemporaryDirectory() as temp_dir:
+                                    # Create expected filename format for clifpy
+                                    base_table_name = table_name.lower().replace('clif_', '')
+                                    temp_file_path = os.path.join(temp_dir, f"clif_{base_table_name}.{filetype}")
+                                    
+                                    # Write uploaded file content to temporary file
+                                    with open(temp_file_path, 'wb') as temp_file:
+                                        temp_file.write(file.getvalue())
+                                    
+                                    # Get the appropriate clifpy class
+                                    table_class = table_class_map[table_name.lower()]
+                                    
+                                    # Load using clifpy from_file method
+                                    table_instance = table_class.from_file(
+                                        data_directory=temp_dir,
+                                        filetype=filetype,
+                                        timezone="UTC"
+                                    )
+                                    
+                                    # Store the dataframe in session state
+                                    df = table_instance.df
+                                    st.session_state[table_name] = df
+                                    logger.info(f"Successfully loaded {table_name} using clifpy - shape: {df.shape}")
+                                    logger.info(f"Stored in session_state['{table_name}']. Keys: {list(st.session_state.keys())}")
+                            else:
+                                logger.warning(f"Table {table_name} not supported by clifpy, skipping")
+                                
                     except Exception as e:
                         st.write("Error: No files were submitted or an issue occurred while processing the files.")
                         st.write(f"Details: {e}")
