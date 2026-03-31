@@ -1,5 +1,5 @@
 # CLIF-Lighthouse [![No Maintenance Intended](http://unmaintained.tech/badge.svg)](http://unmaintained.tech/)
-_Deprecated and migrated to TableOne_
+_v2.1 and onwards - Deprecated and migrated to TableOne_
 ## Setup Instructions
 
 ### :warning: Deactivate Any Currently Active Environment(s) :warning:
