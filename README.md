@@ -1,4 +1,4 @@
-# CLIF-Lighthouse
+# CLIF-Lighthouse (Deprecated and migrated to TableOne)
 
 ## Setup Instructions
 
